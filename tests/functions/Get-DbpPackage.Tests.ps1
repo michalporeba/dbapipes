@@ -3,8 +3,12 @@
 Describe "Get-DbpPackage" -Tag "IntegrationTests" {
 
     $location = Resolve-Path $PSScriptRoot\..
-    $cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA"},
-             @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB"}
+    $testPackages = @{
+            Paths = @("repos\minimal", "$location\repos\minimal")
+            Cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA"},
+                    @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB"}
+        }
+        
 
     Context "Get-DbpPackage -From nonexisting should not throw" {
         $nonexistingFolders = @{ Path = "nonexisting\repo" }, @{ Path = "X:\it\is\not\there" }
@@ -14,49 +18,38 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
         }
     }
 
-    Context "Get-DbpPackage -From repos\minimal" {
 
-        # pretend the script is executed from near the test repos
-        Push-Location $PSScriptRoot\..
+    @($testPackages).ForEach({
+        $testPackage = $psitem 
 
-        It "Package <Name> found" -TestCases $cases {
-            param($Name)
-            $packages = (Get-DbpPackage -From repos\minimal)
+        @($testPackage.Paths).ForEach({
+            $fromPath = $psitem
 
-            $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
+            Context "Get-DbpPackage -From $fromPath" {
 
-            $testPackage | Should -Not -BeNull
-        }
+                # pretend the script is executed from near the test repos
+                Push-Location $PSScriptRoot\..
 
-        It "Package <Name> is in <Path>" -TestCases $cases {
-            param($Name, $Path)
-            $packages = (Get-DbpPackage -From repos\minimal)
+                It "Package <Name> found" -TestCases $testPackage.Cases {
+                    param($Name)
+                    $packages = (Get-DbpPackage -From $fromPath)
 
-            $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
+                    $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 
-            $testPackage.Path | Should -Be $Path
-        }
+                    $testPackage | Should -Not -BeNull
+                }
 
-        Pop-Location
-    }
+                It "Package <Name> is in <Path>" -TestCases $testPackage.Cases {
+                    param($Name, $Path)
+                    $packages = (Get-DbpPackage -From $fromPath)
 
-    Context "Get-DbpPackage -From $location\repos\minimal" {
-        It "Package <Name> found" -TestCases $cases {
-            param($Name)
-            $packages = (Get-DbpPackage -From $location\repos\minimal)
+                    $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 
-            $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
+                    $testPackage.Path | Should -Be $Path
+                }
 
-            $testPackage | Should -Not -BeNull
-        }
-
-        It "Package <Name> is in <Path>" -TestCases $cases {
-            param($Name, $Path)
-            $packages = (Get-DbpPackage -From $location\repos\minimal)
-
-            $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
-
-            $testPackage.Path | Should -Be $Path
-        }
-    }
+                Pop-Location
+            }
+        })
+    })
 }
