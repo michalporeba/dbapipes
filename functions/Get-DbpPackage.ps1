@@ -18,11 +18,15 @@ function Get-DbpPackage
                 $path = "$path\packages"
                 $packageFolders = (Get-ChildItem $path -Directory)
                 @($packageFolders).ForEach({
-                    if (Test-Path "$psitem\package.psd1")
+                    if (Test-Path "$psitem\package.psd1" -PathType Leaf)
                     {
-
+                        try {
+                            [Package]::new($psitem.FullName, (Import-PowerShellDataFile -Path "$psitem\package.psd1" -ErrorAction SilentlyContinue))
+                        } catch {
+                            Write-PSFMessage -Function "Get-DbpPackage" -Level Verbose "Failed to load $psitem\package.psd1"
+                        }
                     } else {
-                        [Package]::new($psitem.Name, $psitem.FullName)
+                        [Package]::new($psitem.FullName, $psitem.Name)
                     }
                 })
             }

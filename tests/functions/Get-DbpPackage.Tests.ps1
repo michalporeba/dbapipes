@@ -4,12 +4,15 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
 
     $location = Resolve-Path $PSScriptRoot\..
     $testPackages = @{
-            Paths = @("repos\minimal", "$location\repos\minimal")
-            Cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA"},
-                    @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB"}
+            Paths = @("repos\minimal", "$location\repos\minimal" )
+            Cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA" },
+                    @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB" }
+        }, @{
+            Paths = @("repos\complex", "$location\repos\complex")
+            Cases = @{ Name = "Complex Package A"; Path = "$location\repos\complex\packages\CPA" },
+                    @{ Name = "Complex Package B"; Path = "$location\repos\complex\packages\CPB" }
         }
         
-
     Context "Get-DbpPackage -From nonexisting should not throw" {
         $nonexistingFolders = @{ Path = "nonexisting\repo" }, @{ Path = "X:\it\is\not\there" }
         It "Trying to read from <Path>" -TestCases $nonexistingFolders {
@@ -17,7 +20,6 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
             { Get-DbpPackage -From $Path } | Should -Not -Throw
         }
     }
-
 
     @($testPackages).ForEach({
         $testPackage = $psitem 

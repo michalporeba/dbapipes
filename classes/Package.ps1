@@ -3,11 +3,19 @@ class Package {
     [ValidateNotNullOrEmpty()][String]$Path
 
     Package(
-        [String]$name,
-        [String]$path
+        [String]$path,
+        [String]$name
     ){
-        $this.Name = $name
         $this.Path = $path 
+        $this.Name = $name
+    }
+
+    Package(
+        [String]$path,
+        [System.Collections.Hashtable]$data
+    ){
+        $this.Path = $path
+        $this.Name = $data.Name
     }
 
 }

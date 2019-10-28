@@ -8,13 +8,13 @@ Describe "Unit tests of Package class"{
 
         It "Constructor sets Name to <word>" -TestCases $words {
             param($word)
-            $package = [Package]::new($word, 'path');
+            $package = [Package]::new('path', $word);
             $package.Name | Should -Be $word
         }
 
         It "Constructor sets Path to <word>" -TestCases $words {
             param($word)
-            $package = [Package]::new('name', $word);
+            $package = [Package]::new($word, 'name');
             $package.Path | Should -Be $word
         }
     }

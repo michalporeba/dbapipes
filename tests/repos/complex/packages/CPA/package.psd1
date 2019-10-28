@@ -1,0 +1,3 @@
+@{
+    Name = "Complex Package A"
+}
