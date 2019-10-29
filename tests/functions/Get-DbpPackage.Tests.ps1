@@ -3,14 +3,14 @@
 Describe "Get-DbpPackage" -Tag "IntegrationTests" {
 
     $location = Resolve-Path $PSScriptRoot\..
-    $testPackages = @{
+    $referencePackages = @{
             Paths = @("repos\minimal", "$location\repos\minimal" )
-            Cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA" },
-                    @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB" }
+            Cases = @{ Name = "MPA"; Path = "$location\repos\minimal\packages\MPA"; Tags = @(); },
+                    @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB"; Tags = @(); }
         }, @{
             Paths = @("repos\complex", "$location\repos\complex")
-            Cases = @{ Name = "Complex Package A"; Path = "$location\repos\complex\packages\CPA" },
-                    @{ Name = "Complex Package B"; Path = "$location\repos\complex\packages\CPB" }
+            Cases = @{ Name = "Complex Package A"; Path = "$location\repos\complex\packages\CPA"; Tags = @("CpaTag"); },
+                    @{ Name = "Complex Package B"; Path = "$location\repos\complex\packages\CPB"; Tags = @("CpbTag1", "CpbTag2"); }
         }
         
     Context "Get-DbpPackage -From nonexisting should not throw" {
@@ -21,10 +21,10 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
         }
     }
 
-    @($testPackages).ForEach({
-        $testPackage = $psitem 
+    @($referencePackages).ForEach({
+        $referencePackage = $psitem 
 
-        @($testPackage.Paths).ForEach({
+        @($referencePackage.Paths).ForEach({
             $fromPath = $psitem
 
             Context "Get-DbpPackage -From $fromPath" {
@@ -32,22 +32,40 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
                 # pretend the script is executed from near the test repos
                 Push-Location $PSScriptRoot\..
 
-                It "Package <Name> found" -TestCases $testPackage.Cases {
+                It "Package <Name> found" -TestCases $referencePackage.Cases {
                     param($Name)
                     $packages = (Get-DbpPackage -From $fromPath)
-
                     $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 
                     $testPackage | Should -Not -BeNull
                 }
 
-                It "Package <Name> is in <Path>" -TestCases $testPackage.Cases {
+                It "Package <Name> is in <Path>" -TestCases $referencePackage.Cases {
                     param($Name, $Path)
                     $packages = (Get-DbpPackage -From $fromPath)
-
                     $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 
                     $testPackage.Path | Should -Be $Path
+                }
+
+                It "Package <Name> has all expected tags" -TestCases $referencePackage.Cases {
+                    param($Name, $Tags)
+                    $packages = (Get-DbpPackage -From $fromPath)
+                    $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
+
+                    @($Tags).ForEach({
+                        $testPackage.Tags | Should -Contain $psitem -Because "$psitem is expected tag for $Name"
+                    })
+                }
+
+                It "Package <Name> doesn't have unexpected tags" -TestCases $referencePackage.Cases {
+                    param($Name, $Tags)
+                    $packages = (Get-DbpPackage -From $fromPath)
+                    $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
+
+                    @($testPackage.Tags).ForEach({
+                        $Tags | Should -Contain $psitem -Because "all the tags should be expected"
+                    })
                 }
 
                 Pop-Location

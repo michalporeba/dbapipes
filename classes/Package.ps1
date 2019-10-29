@@ -1,7 +1,8 @@
 class Package {
     [ValidateNotNullOrEmpty()][String]$Name
     [ValidateNotNullOrEmpty()][String]$Path
-
+    [String[]]$Tags
+    
     Package(
         [String]$path,
         [String]$name
@@ -16,6 +17,7 @@ class Package {
     ){
         $this.Path = $path
         $this.Name = $data.Name
+        $this.Tags = $data.Tag
     }
 
 }

@@ -21,7 +21,8 @@ function Get-DbpPackage
                     if (Test-Path "$psitem\package.psd1" -PathType Leaf)
                     {
                         try {
-                            [Package]::new($psitem.FullName, (Import-PowerShellDataFile -Path "$psitem\package.psd1" -ErrorAction SilentlyContinue))
+                            $packageConfig = (Import-PowerShellDataFile -Path "$psitem\package.psd1" -ErrorAction SilentlyContinue)
+                            [Package]::new($psitem.FullName, $packageConfig)
                         } catch {
                             Write-PSFMessage -Function "Get-DbpPackage" -Level Verbose "Failed to load $psitem\package.psd1"
                         }
