@@ -9,7 +9,9 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
                     @{ Name = "MPB"; Path = "$location\repos\minimal\packages\MPB"; Tags = @(); Sources = @(); }
         }, @{
             Paths = @("repos\complex", "$location\repos\complex")
-            Cases = @{ Name = "Complex Package A"; Path = "$location\repos\complex\packages\CPA"; Tags = @("CpaTag"); Dbs = @("db1"); },
+            Cases = @{ Name = "Complex Package A"; Path = "$location\repos\complex\packages\CPA";
+                       Tags = @("CpaTag"); 
+                       Dbs = @("db1"); },
                     @{ Name = "Complex Package B"; Path = "$location\repos\complex\packages\CPB"; 
                        Tags = @("CpbTag1", "CpbTag2");
                        Dbs = @("db1", "db2");
@@ -76,10 +78,7 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
                     $packages = (Get-DbpPackage -From $fromPath)
                     $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
                     
-                    Write-Host "TestSource = $Dbs"
-
                     @($Dbs).ForEach({
-                        Write-Host "TestSource = $psitem"
                         $testPackage.Sources | Should -Contain $psitem -Because "$psitem is expected source for $Name"
                     })
                 }
@@ -89,9 +88,7 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
                     $packages = (Get-DbpPackage -From $fromPath)
                     $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 
-                    Write-Host "Source = $Dbs"
                     @($testPackage.Sources).ForEach({
-                        Write-Host "Source = $psitem"
                         $Dbs | Should -Contain $psitem -Because "all the sources should be expected"
                     })
                 }
