@@ -8,6 +8,10 @@ function Get-DbpPackage
     )
     process 
     { 
+        if (-not (Test-Path $From)) { 
+            return 
+        }
+
         # using Resolve-Path throws if the path doesn't exist, the below doesn't.
         $path = $ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($From)
         
@@ -40,6 +44,5 @@ function Get-DbpPackage
         {
             # TODO: this is a zip package
         }
-        
     }
 }
