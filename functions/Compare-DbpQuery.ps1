@@ -51,7 +51,7 @@ function Compare-DbpQuery
                 if ($template.Length -ne $current.Length) {
                     ++$issuesFound;
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  PROBLEM: Expected $($template.Length) rows but found $($current.Length)"
-                    if ($StopOnFirst -eq $true) { return }
+                    return
                 } else {
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Row numbers match ($($template.Length))"
                 }
@@ -61,7 +61,7 @@ function Compare-DbpQuery
                 if ($templateColumns.Length -ne $currentColumns.Length) {
                     ++$issuesFound;
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "PROBLEM: Expected $($templateColumns.Length) columns but found $($currentColumns.Length)"
-                    if ($StopOnFirst -eq $true) { return }
+                    return
                 } else {
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Column numbers match ($($templateColumns.Length))"
                 }
