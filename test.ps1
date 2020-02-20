@@ -9,7 +9,7 @@ if ($testResults.FailedCount -gt 0)
 Write-PSFMessage -Level Host "Installing the DBA Pipes module"
 .\install.ps1 
 
-Compare-DbpQuery -SqlInstance localhost -Database tempdb -Path D:\SqlCompare\ -File Sample.sql,Matching.sql,Different.sql
+Compare-DbpQuery -SqlInstance localhost -Database tempdb -Path D:\SqlCompare\ -File Sample.sql,Matching.sql,Different.sql -Accept B
 
 
 
