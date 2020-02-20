@@ -115,12 +115,12 @@ function Compare-DbpQuery
                             Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Data in column $($templateColumns[$i].Name) matches exactly"
                         }
                     }
-                }   
-            } 
+                }
 
-            if ($issuesFound -eq 0){
-                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "No issues found in $psitem"
-            }
+                if ($issuesFound -eq 0){
+                    Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "No issues found in $psitem"
+                } 
+            } 
         }
 
         $executionStats.Values | Select Query, ExecutionTime
