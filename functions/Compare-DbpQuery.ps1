@@ -21,13 +21,13 @@ function Compare-DbpQuery
 
         if (@($File).Length -eq 1)
         {
-            $File = @($File,"$File.previous")
+            $File = @("$File.previous", $File)
         }
 
         @($File).foreach{
             $filePath = (Join-Path -Path $Path -ChildPath $psitem)
-            Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Executing $filePath"
             $currentFile = $psitem 
+            Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Executing $filePath"
             $current = Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filePath -SqlParameters $Parameters -EnableException
 
             if ($null -eq $current) {
@@ -36,11 +36,12 @@ function Compare-DbpQuery
             }
 
             if ($null -eq $template){
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Assinging $psitem as the template"
                 $template = $current
                 $templateFile = $psitem
                 $templateColumns = ($template[0] | Get-Member -MemberType Property)
             } else {
-                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "Comparing results from $currentFile and $templateFile"
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "Comparing results from $currentFile against $templateFile"
                 #check the number of rows
                 if ($template.Length -ne $current.Length) {
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  PROBLEM: Expected $($template.Length) rows but found $($current.Length)"
@@ -76,11 +77,11 @@ function Compare-DbpQuery
                     $firstAffectedRow = 0;
                     $expectedValue = $null;
                     $actualValue = $null 
-                    if ($templateColumns[$i].Name -in @($Investigate)){
+                    if (![String]::IsNullOrEmpty($templateColumns[$i].Name) -and $templateColumns[$i].Name -in @($Investigate)){
                         Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  Investigating column $($templateColumns[$i].Name)"           
                     }
                     for($j = 0; $j -lt $template.Length; ++$j) {
-                        if ($template[$j][$templateColumns[$i].Name] -ne $current[$j][$currentColumns[$i].Name]) {
+                        if ($template[$j][$templateColumns[$i].Name] -cne $current[$j][$currentColumns[$i].Name]) {
                             if ($rowsAffected++ -eq 0) {
                                 $firstAffectedRow = $j+1
                                 $expectedValue = $template[$j][$templateColumns[$i].Name]
@@ -105,9 +106,8 @@ function Compare-DbpQuery
                             Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Data in column $($templateColumns[$i].Name) matches exactly"
                         }
                     }
-                }    
-            }
-            
+                }   
+            } 
         }
     }
 }
