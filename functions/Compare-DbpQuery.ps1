@@ -10,6 +10,7 @@ function Compare-DbpQuery
         [String[]]$Accept,
         [String[]]$Investigate,
         [Switch]$StopOnFirst,
+        [String]$IdColumn = $null,
         [PSCustomObject]$Parameters = @{}
     )
 
@@ -82,7 +83,10 @@ function Compare-DbpQuery
                             }
 
                             if ($templateColumns[$i].Name -in @($Investigate)){
-                                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "    Row $($j+1): Expected $($template[$j][$templateColumns[$i].Name]) but found $($current[$j][$currentColumns[$i].Name])"   
+                                if ($null -ne $IdColumn) {
+                                    $IdString = " (ID=$($template[$j][$IdColumn]))"
+                                }
+                                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "    Row $($j+1)$($IdString): Expected $($template[$j][$templateColumns[$i].Name]) but found $($current[$j][$currentColumns[$i].Name])"   
                             }
                         }
                     }
