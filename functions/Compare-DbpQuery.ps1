@@ -19,6 +19,7 @@ function Compare-DbpQuery
         $templateFile = "";
         $currentFile = "";
         $executionStats = @{};
+        
 
         if (@($File).Length -eq 1)
         {
@@ -26,6 +27,7 @@ function Compare-DbpQuery
         }
 
         @($File).foreach{
+            $issuesFound = 0;
             $filePath = (Join-Path -Path $Path -ChildPath $psitem)
             $currentFile = $psitem 
             Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Executing $filePath"
@@ -47,6 +49,7 @@ function Compare-DbpQuery
                 Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "Comparing results from $currentFile against $templateFile"
                 #check the number of rows
                 if ($template.Length -ne $current.Length) {
+                    ++$issuesFound;
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  PROBLEM: Expected $($template.Length) rows but found $($current.Length)"
                     if ($StopOnFirst -eq $true) { return }
                 } else {
@@ -56,18 +59,20 @@ function Compare-DbpQuery
                 #check column numbers
                 $currentColumns = ($current[0] | Get-Member -MemberType Property)
                 if ($templateColumns.Length -ne $currentColumns.Length) {
+                    ++$issuesFound;
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "PROBLEM: Expected $($templateColumns.Length) columns but found $($currentColumns.Length)"
                     if ($StopOnFirst -eq $true) { return }
                 } else {
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Column numbers match ($($templateColumns.Length))"
                 }
 
-                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  Checking $($templateColumns.Length) columns and $($template.Length) rows"
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "Checking $($templateColumns.Length) columns and $($template.Length) rows"
 
                 #Check column names and types
                 for($i = 0; $i -lt $templateColumns.Length; ++$i){
                     if ($templateColumns[$i].Name -ne $currentColumns[$i].Name)
                     {
+                        ++$issuesFound;
                         Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  PROBLEM: Exepcted column $($templateColumns[$i].Name) at index $i but $($currentColumns[$i].Name) was found."
                         if ($StopOnFirst -eq $true) { return }
                     }
@@ -103,6 +108,7 @@ function Compare-DbpQuery
                         Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  ACCEPTED: $rowsAffected differences in column $($templateColumns[$i].Name) have been accepted."
                     } else {
                         if ($rowsAffected -gt 0) {
+                            ++$issuesFound;
                             Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  PROBLEM: Value of $($templateColumns[$i].Name) in row $($firstAffectedRow) should be $($expectedValue) but was $($actualValue). ($rowsAffected rows affected)."
                             if ($StopOnFirst -eq $true) { return }
                         } else {
@@ -111,6 +117,10 @@ function Compare-DbpQuery
                     }
                 }   
             } 
+
+            if ($issuesFound -eq 0){
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "No issues found in $psitem"
+            }
         }
 
         $executionStats.Values | Select Query, ExecutionTime
