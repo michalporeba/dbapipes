@@ -18,6 +18,7 @@ function Compare-DbpQuery
         $template = $null;
         $templateFile = "";
         $currentFile = "";
+        $executionStats = @{};
 
         if (@($File).Length -eq 1)
         {
@@ -28,7 +29,9 @@ function Compare-DbpQuery
             $filePath = (Join-Path -Path $Path -ChildPath $psitem)
             $currentFile = $psitem 
             Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Executing $filePath"
+            $ts = Get-Date
             $current = Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filePath -SqlParameters $Parameters -EnableException
+            $executionStats.Add($psitem, @{ Query = $psitem; ExecutionTime = ((Get-Date)-$ts);})
 
             if ($null -eq $current) {
                 Write-PSFMessage -Function "Compare-DbpQuery" -Level Critical "there is no data to look at"
@@ -59,7 +62,7 @@ function Compare-DbpQuery
                     Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "  Column numbers match ($($templateColumns.Length))"
                 }
 
-                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  Columns = $($templateColumns.Length), Rows = $($template.Length)"
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Output "  Checking $($templateColumns.Length) columns and $($template.Length) rows"
 
                 #Check column names and types
                 for($i = 0; $i -lt $templateColumns.Length; ++$i){
@@ -109,5 +112,7 @@ function Compare-DbpQuery
                 }   
             } 
         }
+
+        $executionStats.Values | Select Query, ExecutionTime
     }
 }
