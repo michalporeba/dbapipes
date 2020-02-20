@@ -28,7 +28,12 @@ function Compare-DbpQuery
             $filePath = (Join-Path -Path $Path -ChildPath $psitem)
             Write-PSFMessage -Function "Compare-DbpQuery" -Level Verbose "Executing $filePath"
             $currentFile = $psitem 
-            $current = Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filePath -SqlParameters $Parameters
+            $current = Invoke-DbaQuery -SqlInstance $SqlInstance -Database $Database -File $filePath -SqlParameters $Parameters -EnableException
+
+            if ($null -eq $current) {
+                Write-PSFMessage -Function "Compare-DbpQuery" -Level Critical "there is no data to look at"
+                return
+            }
 
             if ($null -eq $template){
                 $template = $current
