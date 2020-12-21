@@ -1,4 +1,4 @@
-$testResults = (invoke-pester .\tests\ -PassThru -Show fails)
+$testResults = (invoke-pester .\src\tests\ -PassThru -Show fails)
 
 if ($testResults.FailedCount -gt 0)
 {
