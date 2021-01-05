@@ -1,0 +1,6 @@
+@{
+    Property = @{
+        SubProperty = "abc"
+    }
+}
+
