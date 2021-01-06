@@ -1,5 +1,7 @@
 @{
     Name = "Complex Package A"
     Tag = "CpaTag"
-    Source = "db1"
+    Source = @{
+        Database=@("db1")
+    }
 }

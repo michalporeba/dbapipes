@@ -39,6 +39,8 @@ Describe "Get-DbpPackage" -Tag "IntegrationTests" {
 
                 It "Package [<Name>] found" -TestCases $referencePackage.Cases {
                     param($Name)
+                    Write-PSFMessage -Level Warning -Message "Name = $Name"
+                    Write-PSFMessage -Level Warning -Message "From = $fromPath"
                     $packages = (Get-DbpPackage -From $fromPath)
                     $testPackage = $packages | Where-Object { $psitem.Name -eq $Name }
 

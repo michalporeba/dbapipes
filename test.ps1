@@ -1,10 +1,13 @@
-Push-Location .
-$testResults = (invoke-pester .\src\tests\ -PassThru -Show fails)
+Push-Location .\src
+$testResults = (invoke-pester .\tests\ -PassThru -Show fails)
+
+Pop-Location
+
 
 if ($testResults.FailedCount -gt 0)
 {
     Write-PSFMessage -Level Critical     "Tests failed!"
     return
 }
-Pop-Location
+
 
