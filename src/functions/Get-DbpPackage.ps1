@@ -6,10 +6,6 @@ function Get-DbpPackage
     param(
         [String]$From
     )
-    begin 
-    {
-        Write-PSFMessage -Level Verbose -Message "starting Get-DbpPackage"
-    }
     process 
     { 
         if (-not (Test-Path $From)) { 
@@ -27,10 +23,8 @@ function Get-DbpPackage
             if (Test-Path -Path "$path" -PathType Container)
             {
                 Write-PSFMessage -Level Verbose -Message "Looking for packages in $path"
-                
                 $packageFolders = (Get-ChildItem $path -Directory)
                 @($packageFolders).ForEach({
-                    Write-PSFMessage -Level Verbose -Message "Folder is $psitem"
                     if (Test-Path "$path\$psitem\package.psd1" -PathType Leaf)
                     {
                         try {
@@ -40,7 +34,6 @@ function Get-DbpPackage
                             Write-PSFMessage -Level Verbose "Failed to load $psitem\package.psd1"
                         }
                     } else {
-                        Write-PSFMessage -Level Warning -Message "Missing package.psd1"
                         [Package]::new($psitem.FullName, $psitem.Name)
                     }
                 })
