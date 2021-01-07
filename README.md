@@ -15,3 +15,11 @@ The above should be enough to run all defined data extracts with names starting 
 The objective is to 'pipe' data from one place to another. While a single task during individual execution might have multiple sources (to account for multi-tenant (or similar deployments) it should have single data output destination with a single staging mechanism selected for the execution. It should be possible to split the data in that staging or destination environment by some value derived from the data source to help with data separation. 
 
 
+## Tasks or Pipes and Packages
+
+Individiaul tasks is what gets executed and packages are just a convinient way to group the tasks. 
+Something like Get-DbpPackage could be useful to review what has been deployed, what is available in a given environment
+but probably should not be used in the execution, where everything should be on task level
+```
+Get-DbpPipe -PackageName PackageA -Task TaskB | Invoke-DbpPipe
+```
